@@ -1,0 +1,15 @@
+# Compiled Binaries
+*.exe
+*.o
+gatekeeper
+monitor_app
+
+# Databases and Logs
+*.txt
+*.log
+limiter_db.txt
+system_health.log
+
+# IDE folders
+.vscode/
+.idea/
