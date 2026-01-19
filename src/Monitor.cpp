@@ -57,6 +57,12 @@ void Monitor::log_alert(const std::string& message) {
 
     // Open in 'app' (append) mode to keep historical data
     std::ofstream log_file(log_filename, std::ios::app);
+
+    // Check if file opened successfully
+    if(!log_file.is_open()) {
+        std::cerr << "Error: Unable to open log file: " << log_filename << "\n";
+        return;
+    }
     
     if(log_file.is_open()) {
         log_file << encrypted << "\n";
