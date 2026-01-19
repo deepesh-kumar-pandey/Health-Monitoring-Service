@@ -6,6 +6,7 @@ monitor_app
 
 # Databases and Logs
 *.txt
+!CMakeLists.txt
 *.log
 limiter_db.txt
 system_health.log
