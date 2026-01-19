@@ -67,23 +67,20 @@ void Monitor::log_alert(const std::string& message) {
     if(log_file.is_open()) {
         log_file << encrypted << "\n";
         log_file.close();
-    } else {
-        std::cerr << "Error: Unable to open log file: " << log_filename << "\n";
     }
 }
 
 /**
  * Infinite monitoring loop.
- * Checks system health every 5 seconds.
+ * Checks system health every 'interval_seconds'.
  */
-void Monitor::run_monitoring_cycle() {
+void Monitor::run_monitoring_cycle(int interval_seconds) {
     while(true) {
-        // Note: Changed get_current_load() to read_system_load() to match function name above
         float current_load = read_system_load();
         
         if(current_load < 0) {
             // Wait and retry if a system read error occurs
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::this_thread::sleep_for(std::chrono::seconds(interval_seconds));
             continue;
         }
 
@@ -95,7 +92,7 @@ void Monitor::run_monitoring_cycle() {
             std::cout << "[Monitor] System Healthy. Load: " << current_load << "\n";
         }
 
-        // Pause for 5 seconds between checks to save CPU resources
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        // Pause for specified interval between checks
+        std::this_thread::sleep_for(std::chrono::seconds(interval_seconds));
     }
 }

@@ -10,10 +10,12 @@ std::string Config::get_encryption_key() {
         return std::string(env_key);
     }
 
-    // 2. Fallback: Use a default developer key
-    // This allows the program to run even if you didn't 'export' anything
-    std::string default_key = "DEV_DEBUG_KEY_99"; 
+    // 2. Enforce Environment Variable
+    // Start of Selection
+    if (env_key == nullptr) {
+        std::cerr << "[Config] Error: MONITOR_KEY environment variable not set." << std::endl;
+        std::exit(EXIT_FAILURE); // Fail securely if no key is provided
+    }
     
-    std::cout << "[Config] No MONITOR_KEY found in environment. Using default dev key." << std::endl;
-    return default_key;
+    return std::string(env_key);
 }
