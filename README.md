@@ -56,19 +56,3 @@ Input,Description,Example
 Load Threshold,"CPU load limit (e.g., 0.75 for 75%)",0.75
 Log Filename,File to store encrypted alerts,alerts.log
 Check Interval,Frequency of health checks (in seconds),5
-
-
-Example:
--------------------------------------------
-      DEEP GUARD: SYSTEM SETUP         
--------------------------------------------
-[1/3] Enter CPU Load Threshold (e.g. 0.75): 0.8
-[2/3] Enter name for the log file: system.log
-[3/3] Enter check interval in seconds: 2
-
-========================================
-  Configuration Saved. Monitoring Started.
-  Target: system.log | Alert at: >0.8
-  Interval: 2s | Security: ENABLED
-========================================
-
