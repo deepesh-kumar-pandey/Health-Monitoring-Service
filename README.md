@@ -72,15 +72,3 @@ Example:
   Interval: 2s | Security: ENABLED
 ========================================
 
-📂 Project Structure
-Saas Health check/
-├── src/
-│   ├── main.cpp           # CLI entry point & interactive setup
-│   ├── Monitor.cpp        # Monitoring logic & encryption implementation
-│   └── Config.cpp         # Secure environment-based configuration
-├── include/
-│   ├── Monitor.h          # Monitor class definitions
-│   └── Config.h           # Config class definitions
-├── .gitignore             # Prevents binaries and logs from being tracked
-├── Dockerfile             # Multi-stage Docker build
-└── README.md              # Project documentation
