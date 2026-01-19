@@ -13,7 +13,7 @@ A lightweight, high-performance **C++ sidecar monitor** designed to track system
 ## 🛠️ Tech Stack
 * **Language:** C++17
 * **Compiler:** G++ (GCC) / Clang / MSVC
-* **Containerization:** Docker (Debian-slim)
+* **Containerization:** Docker (Alpine-linux)
 * **Encryption:** Custom XOR-bitstream cipher
 
 ---
