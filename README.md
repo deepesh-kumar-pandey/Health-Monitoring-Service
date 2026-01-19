@@ -1,9 +1,9 @@
 # DeepGuard: Service Health Check 🛡️
 
-A lightweight, high-performance **C++ sidecar monitor** designed to track system performance and service health in real-time. This project demonstrates modular C++ design, cross-platform system interaction (Linux), and secure encrypted logging.
+A lightweight, high-performance **C++ sidecar monitor** designed to track system performance and service health in real-time. This project demonstrates modular C++ design, cross-platform system interaction (Linux & Windows), and secure encrypted logging.
 
 ## ✨ Features
-* **Real-time Monitoring:** Tracks CPU load averages across compatible operating systems.
+* **Real-time Monitoring:** Tracks CPU load averages across different operating systems.
 * **Encrypted Logging:** All health alerts are **XOR-encrypted** using a secure key from your environment before being written to disk to ensure data privacy.
 * **Dockerized:** Fully containerized for easy deployment as a sidecar service.
 * **Secure Configuration:** Enforces security best practices with **mandatory environment variables** for secrets. No hardcoded passwords.
@@ -12,8 +12,8 @@ A lightweight, high-performance **C++ sidecar monitor** designed to track system
 
 ## 🛠️ Tech Stack
 * **Language:** C++17
-* **Compiler:** G++ (GCC) / Clang
-* **Containerization:** Docker (Alpine Linux)
+* **Compiler:** G++ (GCC) / Clang / MSVC
+* **Containerization:** Docker (Debian-slim)
 * **Encryption:** Custom XOR-bitstream cipher
 
 ---
@@ -22,7 +22,7 @@ A lightweight, high-performance **C++ sidecar monitor** designed to track system
 
 ### Prerequisites
 * A C++17 compatible compiler.
-* Linux environment (or WSL on Windows).
+* Linux or Windows environment.
 * (Optional) [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ### Building Locally
@@ -32,52 +32,33 @@ Since the source files are located in the `src/` directory, use the following co
 1. **Compile the project:**
    ```bash
    g++ -std=c++17 -I./include src/main.cpp src/Monitor.cpp src/Config.cpp -o deepguard -lpthread
-   ```
 
-2. **Run the application:**
-   You must export the security key to your environment before running.
+Run the application: You must export the security key to your environment before running.
 
-   **Linux/macOS:**
-   ```bash
-   export MONITOR_KEY="my_secret_key"
-   ./deepguard
-   ```
+Linux/macOS:
+export MONITOR_KEY="my_secret_key"
+./deepguard
 
-   **Windows (PowerShell with WSL/Git Bash):**
-   ```powershell
-   $env:MONITOR_KEY="my_secret_key"
-   ./deepguard.exe
-   ```
+Windows (PowerShell):
+$env:MONITOR_KEY="my_secret_key"
+.\deepguard.exe
 
-### Running with Docker
+Running with Docker
+docker build -t health-monitor .
 
-1. **Build the image:**
-   ```bash
-   docker build -t health-monitor .
-   ```
+Run the container (Interactive): Note: We use -it to allow the program to accept your keyboard inputs.
+docker run -it --rm -e MONITOR_KEY="docker_secret_key" health-monitor
 
-2. **Run the container (Interactive):**
-   Note: We use `-it` to allow the program to accept your keyboard inputs.
-   ```bash
-   docker run -it --rm -e MONITOR_KEY="docker_secret_key" health-monitor
-   ```
 
----
-
-## 📖 Usage
-
+📖 Usage
 When the application starts, it acts as an interactive CLI to configure the monitoring session.
+Input,Description,Example
+Load Threshold,"CPU load limit (e.g., 0.75 for 75%)",0.75
+Log Filename,File to store encrypted alerts,alerts.log
+Check Interval,Frequency of health checks (in seconds),5
 
-### Configuration Inputs
 
-| Input | Description | Example |
-|-------|-------------|---------|
-| **Load Threshold** | CPU load limit (e.g., 0.75 for 75%) | `0.75` |
-| **Log Filename** | File to store encrypted alerts | `alerts.log` |
-| **Check Interval** | Frequency of health checks (in seconds) | `5` |
-
-### Example Session
-```text
+Example:
 -------------------------------------------
       DEEP GUARD: SYSTEM SETUP         
 -------------------------------------------
@@ -90,12 +71,8 @@ When the application starts, it acts as an interactive CLI to configure the moni
   Target: system.log | Alert at: >0.8
   Interval: 2s | Security: ENABLED
 ========================================
-```
 
----
-
-## 📂 Project Structure
-```text
+Project Structure:
 DeepGuard/
 ├── src/
 │   ├── main.cpp           # CLI entry point & interactive setup
@@ -107,4 +84,3 @@ DeepGuard/
 ├── .gitignore             # Prevents binaries and logs from being tracked
 ├── Dockerfile             # Multi-stage Docker build
 └── README.md              # Project documentation
-```
