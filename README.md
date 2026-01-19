@@ -25,34 +25,4 @@ A lightweight, high-performance **C++ sidecar monitor** designed to track system
 * Linux or Windows environment.
 * (Optional) [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### Building Locally
 
-Since the source files are located in the `src/` directory, use the following command to compile manually:
-
-1. **Compile the project:**
-   ```bash
-   g++ -std=c++17 -I./include src/main.cpp src/Monitor.cpp src/Config.cpp -o deepguard -lpthread
-
-Run the application: You must export the security key to your environment before running.
-
-Linux/macOS:
-export MONITOR_KEY="my_secret_key"
-./deepguard
-
-Windows (PowerShell):
-$env:MONITOR_KEY="my_secret_key"
-.\deepguard.exe
-
-Running with Docker
-docker build -t health-monitor .
-
-Run the container (Interactive): Note: We use -it to allow the program to accept your keyboard inputs.
-docker run -it --rm -e MONITOR_KEY="docker_secret_key" health-monitor
-
-
-📖 Usage
-When the application starts, it acts as an interactive CLI to configure the monitoring session.
-Input,Description,Example
-Load Threshold,"CPU load limit (e.g., 0.75 for 75%)",0.75
-Log Filename,File to store encrypted alerts,alerts.log
-Check Interval,Frequency of health checks (in seconds),5
