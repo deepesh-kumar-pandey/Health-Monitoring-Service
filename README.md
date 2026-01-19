@@ -72,8 +72,8 @@ Example:
   Interval: 2s | Security: ENABLED
 ========================================
 
-Project Structure:
-DeepGuard/
+📂 Project Structure
+Saas Health check/
 ├── src/
 │   ├── main.cpp           # CLI entry point & interactive setup
 │   ├── Monitor.cpp        # Monitoring logic & encryption implementation
