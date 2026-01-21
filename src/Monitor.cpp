@@ -95,4 +95,7 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
         // Pause for specified interval between checks
         std::this_thread::sleep_for(std::chrono::seconds(interval_seconds));
     }
+    std::bool Monitor: check_database_health(const std::string& ip, int port) {
+        
+    }
 }
