@@ -54,21 +54,65 @@ int main() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 
-    // 5. Initialization
-    // We pass the secret_key here so the Monitor can encrypt logs safely.
+    // 5. Create Monitor instance
     Monitor sys_monitor(threshold, log_file, secret_key);
 
+    // 6. Display current system statistics before starting monitoring
     std::cout << "\n========================================\n";
-    std::cout << "  Configuration Saved. Monitoring Started.\n";
-    std::cout << "  Target Log: " << log_file << "\n";
-    std::cout << "  Threshold:  " << threshold << "\n";
-    std::cout << "  Interval:   " << interval << "s\n";
-    std::cout << "  Monitoring: [System Load] [Disk Space] [Database]\n";
-    std::cout << "  Security:   XOR-ENCRYPTION ENABLED\n";
+    std::cout << "  CURRENT SYSTEM STATISTICS\n";
     std::cout << "========================================\n";
 
-    // 6. Start the cycle using the user's chosen interval
-    // This loop runs indefinitely until the process is terminated.
+    // Get current system load
+    float current_load = sys_monitor.get_current_load();
+    if (current_load >= 0) {
+#ifdef _WIN32
+        std::cout << "  Current RAM Usage: " << current_load << "%\n";
+#else
+        std::cout << "  Current CPU Load:  " << current_load << "\n";
+#endif
+    } else {
+        std::cout << "  Current Load:      Unable to read\n";
+    }
+
+    // Get current disk status
+#ifdef _WIN32
+    DiskStatus ds = sys_monitor.check_disk_health("C:\\");
+    std::cout << "  Disk (C:\\):       " << ds.percent_used << "% used\n";
+#else
+    DiskStatus ds = sys_monitor.check_disk_health("/");
+    std::cout << "  Disk (/):          " << ds.percent_used << "% used\n";
+#endif
+    
+    // Display disk space details
+    std::cout << "    Total: " << (ds.total_bytes / (1024.0 * 1024.0 * 1024.0)) << " GB\n";
+    std::cout << "    Free:  " << (ds.free_bytes / (1024.0 * 1024.0 * 1024.0)) << " GB\n";
+
+    // Check database connectivity
+    bool db_up = sys_monitor.check_database_health("127.0.0.1", 3306);
+    std::cout << "  Database (MySQL):  " << (db_up ? "Connected" : "Not reachable") << "\n";
+
+    // 7. Display configuration and start monitoring
+    std::cout << "\n========================================\n";
+    std::cout << "  MONITORING CONFIGURATION\n";
+    std::cout << "========================================\n";
+    std::cout << "  Target Log:       " << log_file << "\n";
+    std::cout << "  Alert Threshold:  " << threshold;
+#ifdef _WIN32
+    std::cout << " % (RAM)\n";
+#else
+    std::cout << " (CPU Load)\n";
+#endif
+    std::cout << "  Check Interval:   " << interval << " seconds\n";
+    std::cout << "  Disk Alert:       > 90% usage\n";
+    std::cout << "  Monitoring:       [System Load] [Disk Space] [Database]\n";
+    std::cout << "  Security:         XOR-ENCRYPTION ENABLED\n";
+    std::cout << "========================================\n";
+    std::cout << "  Status: MONITORING ACTIVE\n";
+    std::cout << "  Press Ctrl+C to stop\n";
+    std::cout << "========================================\n\n";
+
+    // 8. Start the monitoring cycle
+    // This loop runs indefinitely until the process is terminated
     sys_monitor.run_monitoring_cycle(interval);
 
     return 0;

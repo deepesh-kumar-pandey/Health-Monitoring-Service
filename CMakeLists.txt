@@ -1,30 +1,28 @@
 cmake_minimum_required(VERSION 3.10)
-project(DeepGuard VERSION 1.0)
+project(deepguard)
 
-# Specify C++17 standard
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Include the headers folder
-include_directories(include)
+# Find Threads library
+find_package(Threads REQUIRED)
 
-# Explicitly list source files (Better practice than GLOB for build tracking)
-set(SOURCES 
-    "src/main.cpp" 
-    "src/Monitor.cpp"
+# Add source files - ADD Config.cpp HERE!
+add_executable(deepguard
+    src/main.cpp
+    src/Monitor.cpp
+    src/Config.cpp
 )
 
-# Create the executable
-add_executable(deepguard ${SOURCES})
+# Include directories
+target_include_directories(deepguard PRIVATE include)
 
-# --- LINKING LIBRARIES ---
+# Link libraries
+target_link_libraries(deepguard PRIVATE Threads::Threads)
 
-# 1. Threading library (Required for std::thread on Linux)
-find_package(Threads REQUIRED)
-target_link_libraries(deepguard PUBLIC Threads::Threads)
-
-# 2. Windows Sockets (Required for check_database_health on Windows)
+# Windows-specific: Link Winsock2
 if(WIN32)
-    target_link_libraries(deepguard PUBLIC ws2_32)
     message(STATUS "Linking Winsock2 for Windows build")
+    target_link_libraries(deepguard PRIVATE ws2_32)
 endif()

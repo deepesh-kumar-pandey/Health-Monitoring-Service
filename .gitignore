@@ -1,8 +1,19 @@
 # Compiled Binaries
 *.exe
 *.o
+*.out
+*.a
+*.so
+*.dll
 gatekeeper
 monitor_app
+deepguard
+
+# Build directories
+build/
+bin/
+obj/
+cmake-build-*/
 
 # Databases and Logs
 *.txt
@@ -14,3 +25,32 @@ system_health.log
 # IDE folders
 .vscode/
 .idea/
+*.code-workspace
+
+# OS-specific files (Windows)
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# OS-specific files (Linux)
+*~
+*.swp
+*.swo
+.directory
+.Trash-*
+
+# Compilation artifacts (Linux)
+core
+core.*
+*.core
+a.out
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Package managers
+*.deb
+*.rpm
