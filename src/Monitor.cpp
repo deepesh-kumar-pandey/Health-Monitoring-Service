@@ -5,97 +5,195 @@
 #include <chrono>
 #include <vector>
 
+/** * --- OS-SPECIFIC INCLUDES ---
+ * We use conditional compilation to include the correct system APIs
+ * for Windows (MSVC/MinGW) and Unix-based systems (Linux/macOS).
+ */
+#ifdef _WIN32
+    #include <windows.h>   // For Memory and Disk APIs
+    #include <winsock2.h>  // For Network Sockets
+    #pragma comment(lib, "ws2_32.lib") // Links the Winsock library on Windows
+#else
+    #include <unistd.h>      // Standard symbolic constants and types
+    #include <sys/statvfs.h> // For Linux disk space stats
+    #include <sys/socket.h>  // For Linux network sockets
+    #include <netinet/in.h>  // For IP address structures
+    #include <arpa/inet.h>   // For IP address conversion
+#endif
+
 /**
- * Reads the 1-minute CPU load average from the Linux kernel.
- * Accesses the virtual filesystem /proc/loadavg.
+ * @brief Reads the current system workload.
+ * * Windows: Retrieves the percentage of physical memory currently in use.
+ * Linux: Parses the first float from /proc/loadavg (1-minute CPU load average).
+ * * @return float: Percentage (0-100) or Load Average. Returns -1.0 on failure.
  */
 float Monitor::read_system_load() {
+#ifdef _WIN32
+    // Windows API to get system-wide memory status
+    MEMORYSTATUSEX memInfo;
+    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+    if (GlobalMemoryStatusEx(&memInfo)) {
+        return static_cast<float>(memInfo.dwMemoryLoad);
+    }
+    return -1.0f;
+#else
+    // Linux virtual file system read
     std::ifstream file("/proc/loadavg");
     float load = 0.0f;
-
-    // Return -1.0f as a sentinel value if file access fails
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open /proc/loadavg." << std::endl;
-        return -1.0f;
-    }
-
-    // Parse the first float value from the file
+    if (!file.is_open()) return -1.0f;
     if (file >> load) {
         file.close();
-    } else {
-        std::cerr << "Error: Failed to parse load data." << std::endl;
-        file.close();
-        return -1.0f;
+        return load;
     }
-
-    return load;
+    return -1.0f;
+#endif
 }
 
 /**
- * XOR Encryption/Decryption Logic.
- * Same loop toggles between plain and scrambled states.
+ * @brief Checks disk capacity and calculates usage percentage.
+ * * @param path: The directory or drive to check (e.g., "C:\\" or "/").
+ * @return DiskStatus: A struct containing free bytes, total bytes, and percent used.
+ */
+DiskStatus Monitor::check_disk_health(const std::string& path) {
+    DiskStatus status = {0, 0, 0.0};
+#ifdef _WIN32
+    // Windows API for large integer storage math
+    ULARGE_INTEGER freeB, totalB, totalFreeB;
+    if (GetDiskFreeSpaceExA(path.c_str(), &freeB, &totalB, &totalFreeB)) {
+        status.free_bytes = totalFreeB.QuadPart;
+        status.total_bytes = totalB.QuadPart;
+    }
+#else
+    // Linux system call for file system statistics
+    struct statvfs vfs;
+    if (statvfs(path.c_str(), &vfs) == 0) {
+        status.total_bytes = (unsigned long long)vfs.f_blocks * vfs.f_frsize;
+        status.free_bytes = (unsigned long long)vfs.f_bfree * vfs.f_frsize;
+    }
+#endif
+    
+    // Safety check to avoid division by zero
+    if (status.total_bytes > 0) {
+        unsigned long long used = status.total_bytes - status.free_bytes;
+        status.percent_used = (static_cast<double>(used) / status.total_bytes) * 100.0;
+    }
+    return status;
+}
+
+/**
+ * @brief Performs a "TCP Ping" to verify if a database service is reachable.
+ * * This function attempts a standard three-way TCP handshake. It does not 
+ * authenticate; it only verifies if the service port is listening.
+ * * @param ip: The IP address of the database server.
+ * @param port: The port number (e.g., 3306 for MySQL, 5432 for PostgreSQL).
+ * @return true if connection is successful, false otherwise.
+ */
+bool Monitor::check_database_health(const std::string& ip, int port) {
+#ifdef _WIN32
+    // Initialize Windows Socket API
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) return false;
+    SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
+#else
+    // Standard Unix socket creation
+    int s = socket(AF_INET, SOCK_STREAM, 0);
+#endif
+
+    if (s < 0) return false;
+
+    // Define the server address and port
+    sockaddr_in server;
+    server.sin_family = AF_INET;
+    server.sin_port = htons(port); // Host-to-network-short byte order
+    server.sin_addr.s_addr = inet_addr(ip.c_str());
+
+    // Attempt the connection handshake
+    int res = connect(s, (struct sockaddr*)&server, sizeof(server));
+
+    // Cleanup resources
+#ifdef _WIN32
+    closesocket(s); 
+    WSACleanup();
+#else
+    close(s);
+#endif
+
+    return (res == 0); // Success if result is 0
+}
+
+/**
+ * @brief XOR Cipher for basic data obfuscation.
+ * * Uses a symmetric key to scramble/unscramble data. 
+ * Running this twice with the same key restores the original string.
  */
 std::string Monitor::encrypt_decrypt(const std::string& data) {
     std::string result = data;
     for(size_t i = 0; i < data.size(); ++i) {
-        // Modulo (%) wraps the key around if the data is longer than the key
+        // Modulo ensures we loop through the key if data is longer than the key
         result[i] = data[i] ^ key[i % key.size()];
     }
     return result;
 }
 
 /**
- * Thread-safe logging.
- * Protects the file from race conditions using a Mutex.
+ * @brief Logs encrypted messages to a file in a thread-safe manner.
+ * * Uses std::lock_guard to prevent race conditions if multiple threads 
+ * attempt to write to the same file simultaneously.
+ * * @param message: The plain-text alert message.
  */
 void Monitor::log_alert(const std::string& message) {
-    // std::lock_guard locks 'mtx' and unlocks it automatically when function ends
+    // RAII lock: Automatically unlocks when 'lock' goes out of scope
     std::lock_guard<std::mutex> lock(mtx); 
-
-    // Scramble message before opening the file
-    std::string encrypted = encrypt_decrypt(message);
-
-    // Open in 'app' (append) mode to keep historical data
-    std::ofstream log_file(log_filename, std::ios::app);
-
-    // Check if file opened successfully
-    if(!log_file.is_open()) {
-        std::cerr << "Error: Unable to open log file: " << log_filename << "\n";
-        return;
-    }
     
-    if(log_file.is_open()) {
-        log_file << encrypted << "\n";
-        log_file.close();
-    }
+    std::string encrypted = encrypt_decrypt(message);
+    
+    // Open in append and binary mode to prevent OS-specific line-ending corruption
+    std::ofstream log_file(log_filename, std::ios::app | std::ios::binary);
+
+    if(!log_file.is_open()) return;
+    
+    log_file << encrypted << "\n";
+    log_file.close();
 }
 
 /**
- * Infinite monitoring loop.
- * Checks system health every 'interval_seconds'.
+ * @brief The main execution loop for the DeepGuard agent.
+ * * Periodically evaluates system load, disk space, and database status.
+ * If any metric exceeds thresholds, it triggers a secure log event.
+ * * @param interval_seconds: Frequency of checks.
  */
 void Monitor::run_monitoring_cycle(int interval_seconds) {
     while(true) {
+        // --- 1. SENSOR READINGS ---
+        
         float current_load = read_system_load();
         
-        if(current_load < 0) {
-            // Wait and retry if a system read error occurs
-            std::this_thread::sleep_for(std::chrono::seconds(interval_seconds));
-            continue;
-        }
+        #ifdef _WIN32
+            DiskStatus ds = check_disk_health("C:\\");
+        #else
+            DiskStatus ds = check_disk_health("/");
+        #endif
 
-        if(current_load > load_threshold) {
-            std::string alert_message = "Alert: High CPU Load Detected - " + std::to_string(current_load);
-            log_alert(alert_message);
-            std::cout << "[Monitor] Alert logged to " << log_filename << "\n";
-        } else {
-            std::cout << "[Monitor] System Healthy. Load: " << current_load << "\n";
-        }
+        // Example: Check for a local MySQL instance
+        bool db_up = check_database_health("127.0.0.1", 3306);
 
-        // Pause for specified interval between checks
-        std::this_thread::sleep_for(std::chrono::seconds(interval_seconds));
-    }
-    std::bool Monitor: check_database_health(const std::string& ip, int port) {
+        // --- 2. EVALUATION & ALERTING ---
         
+        // Trigger alert if Load is high, DB is down, or Disk is > 90% full
+        if(current_load > load_threshold || !db_up || ds.percent_used > 90.0) {
+            std::string alert = "CRITICAL: Load=" + std::to_string(current_load) + 
+                                " | Disk=" + std::to_string(ds.percent_used) + "%" +
+                                " | DB=" + (db_up ? "UP" : "DOWN");
+            
+            log_alert(alert);
+            std::cout << "[Monitor] Alert triggered and logged.\n";
+        } else {
+            // Heartbeat output for console monitoring
+            std::cout << "[Monitor] System OK. Load: " << current_load 
+                      << " | Disk: " << ds.percent_used << "% | DB: UP\n";
+        }
+
+        // --- 3. COOL DOWN ---
+        std::this_thread::sleep_for(std::chrono::seconds(interval_seconds));
     }
 }
