@@ -84,12 +84,12 @@ clean: CMakeFiles/deepguard.dir/clean
 CMakeFiles/deepguard.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\deepguard.dir\build.make CMakeFiles/deepguard.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\deepguard.dir\build.make CMakeFiles/deepguard.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=1,2,3 "Built target deepguard"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=1,2,3,4 "Built target deepguard"
 .PHONY : CMakeFiles/deepguard.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/deepguard.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" 3
+	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/deepguard.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" 0
 .PHONY : CMakeFiles/deepguard.dir/rule
@@ -101,7 +101,7 @@ deepguard: CMakeFiles/deepguard.dir/rule
 # codegen rule for target.
 CMakeFiles/deepguard.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\deepguard.dir\build.make CMakeFiles/deepguard.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=1,2,3 "Finished codegen for target deepguard"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=1,2,3,4 "Finished codegen for target deepguard"
 .PHONY : CMakeFiles/deepguard.dir/codegen
 
 # clean rule for target.

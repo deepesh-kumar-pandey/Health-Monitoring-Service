@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/deepguard.dir/src/Config.cpp.obj"
+  "CMakeFiles/deepguard.dir/src/Config.cpp.obj.d"
   "CMakeFiles/deepguard.dir/src/Monitor.cpp.obj"
   "CMakeFiles/deepguard.dir/src/Monitor.cpp.obj.d"
   "CMakeFiles/deepguard.dir/src/main.cpp.obj"

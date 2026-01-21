@@ -128,6 +128,30 @@ deepguard/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\deepguard.dir\build.make CMakeFiles/deepguard.dir/build
 .PHONY : deepguard/fast
 
+src/Config.obj: src/Config.cpp.obj
+.PHONY : src/Config.obj
+
+# target to build an object file
+src/Config.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\deepguard.dir\build.make CMakeFiles/deepguard.dir/src/Config.cpp.obj
+.PHONY : src/Config.cpp.obj
+
+src/Config.i: src/Config.cpp.i
+.PHONY : src/Config.i
+
+# target to preprocess a source file
+src/Config.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\deepguard.dir\build.make CMakeFiles/deepguard.dir/src/Config.cpp.i
+.PHONY : src/Config.cpp.i
+
+src/Config.s: src/Config.cpp.s
+.PHONY : src/Config.s
+
+# target to generate assembly for a file
+src/Config.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\deepguard.dir\build.make CMakeFiles/deepguard.dir/src/Config.cpp.s
+.PHONY : src/Config.cpp.s
+
 src/Monitor.obj: src/Monitor.cpp.obj
 .PHONY : src/Monitor.obj
 
@@ -185,6 +209,9 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... deepguard
+	@echo ... src/Config.obj
+	@echo ... src/Config.i
+	@echo ... src/Config.s
 	@echo ... src/Monitor.obj
 	@echo ... src/Monitor.i
 	@echo ... src/Monitor.s

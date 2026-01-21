@@ -76,46 +76,63 @@ CMakeFiles/deepguard.dir/src/main.cpp.obj: CMakeFiles/deepguard.dir/includes_CXX
 CMakeFiles/deepguard.dir/src/main.cpp.obj: C:/Users/WELCOME/OneDrive/Desktop/Saas\ health\ check/src/main.cpp
 CMakeFiles/deepguard.dir/src/main.cpp.obj: CMakeFiles/deepguard.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/deepguard.dir/src/main.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/deepguard.dir/src/main.cpp.obj -MF CMakeFiles\deepguard.dir\src\main.cpp.obj.d -o CMakeFiles\deepguard.dir\src\main.cpp.obj -c "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\main.cpp"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/deepguard.dir/src/main.cpp.obj -MF CMakeFiles\deepguard.dir\src\main.cpp.obj.d -o CMakeFiles\deepguard.dir\src\main.cpp.obj -c "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\main.cpp"
 
 CMakeFiles/deepguard.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/deepguard.dir/src/main.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\main.cpp" > CMakeFiles\deepguard.dir\src\main.cpp.i
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\main.cpp" > CMakeFiles\deepguard.dir\src\main.cpp.i
 
 CMakeFiles/deepguard.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/deepguard.dir/src/main.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\main.cpp" -o CMakeFiles\deepguard.dir\src\main.cpp.s
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\main.cpp" -o CMakeFiles\deepguard.dir\src\main.cpp.s
 
 CMakeFiles/deepguard.dir/src/Monitor.cpp.obj: CMakeFiles/deepguard.dir/flags.make
 CMakeFiles/deepguard.dir/src/Monitor.cpp.obj: CMakeFiles/deepguard.dir/includes_CXX.rsp
 CMakeFiles/deepguard.dir/src/Monitor.cpp.obj: C:/Users/WELCOME/OneDrive/Desktop/Saas\ health\ check/src/Monitor.cpp
 CMakeFiles/deepguard.dir/src/Monitor.cpp.obj: CMakeFiles/deepguard.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/deepguard.dir/src/Monitor.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/deepguard.dir/src/Monitor.cpp.obj -MF CMakeFiles\deepguard.dir\src\Monitor.cpp.obj.d -o CMakeFiles\deepguard.dir\src\Monitor.cpp.obj -c "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Monitor.cpp"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/deepguard.dir/src/Monitor.cpp.obj -MF CMakeFiles\deepguard.dir\src\Monitor.cpp.obj.d -o CMakeFiles\deepguard.dir\src\Monitor.cpp.obj -c "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Monitor.cpp"
 
 CMakeFiles/deepguard.dir/src/Monitor.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/deepguard.dir/src/Monitor.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Monitor.cpp" > CMakeFiles\deepguard.dir\src\Monitor.cpp.i
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Monitor.cpp" > CMakeFiles\deepguard.dir\src\Monitor.cpp.i
 
 CMakeFiles/deepguard.dir/src/Monitor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/deepguard.dir/src/Monitor.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Monitor.cpp" -o CMakeFiles\deepguard.dir\src\Monitor.cpp.s
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Monitor.cpp" -o CMakeFiles\deepguard.dir\src\Monitor.cpp.s
+
+CMakeFiles/deepguard.dir/src/Config.cpp.obj: CMakeFiles/deepguard.dir/flags.make
+CMakeFiles/deepguard.dir/src/Config.cpp.obj: CMakeFiles/deepguard.dir/includes_CXX.rsp
+CMakeFiles/deepguard.dir/src/Config.cpp.obj: C:/Users/WELCOME/OneDrive/Desktop/Saas\ health\ check/src/Config.cpp
+CMakeFiles/deepguard.dir/src/Config.cpp.obj: CMakeFiles/deepguard.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/deepguard.dir/src/Config.cpp.obj"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/deepguard.dir/src/Config.cpp.obj -MF CMakeFiles\deepguard.dir\src\Config.cpp.obj.d -o CMakeFiles\deepguard.dir\src\Config.cpp.obj -c "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Config.cpp"
+
+CMakeFiles/deepguard.dir/src/Config.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/deepguard.dir/src/Config.cpp.i"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Config.cpp" > CMakeFiles\deepguard.dir\src\Config.cpp.i
+
+CMakeFiles/deepguard.dir/src/Config.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/deepguard.dir/src/Config.cpp.s"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\WELCOME\OneDrive\Desktop\Saas health check\src\Config.cpp" -o CMakeFiles\deepguard.dir\src\Config.cpp.s
 
 # Object files for target deepguard
 deepguard_OBJECTS = \
 "CMakeFiles/deepguard.dir/src/main.cpp.obj" \
-"CMakeFiles/deepguard.dir/src/Monitor.cpp.obj"
+"CMakeFiles/deepguard.dir/src/Monitor.cpp.obj" \
+"CMakeFiles/deepguard.dir/src/Config.cpp.obj"
 
 # External object files for target deepguard
 deepguard_EXTERNAL_OBJECTS =
 
 deepguard.exe: CMakeFiles/deepguard.dir/src/main.cpp.obj
 deepguard.exe: CMakeFiles/deepguard.dir/src/Monitor.cpp.obj
+deepguard.exe: CMakeFiles/deepguard.dir/src/Config.cpp.obj
 deepguard.exe: CMakeFiles/deepguard.dir/build.make
 deepguard.exe: CMakeFiles/deepguard.dir/linkLibs.rsp
 deepguard.exe: CMakeFiles/deepguard.dir/objects1.rsp
 deepguard.exe: CMakeFiles/deepguard.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable deepguard.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Users\WELCOME\OneDrive\Desktop\Saas health check\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable deepguard.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\deepguard.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
