@@ -190,6 +190,7 @@ bool Monitor::send_system_notification(
             break;
         default:
             icon_type = MB_ICONINFORMATION;
+            break;
     }
     
     // Create a separate thread so notification doesn't block monitoring
@@ -223,6 +224,10 @@ bool Monitor::send_system_notification(
         case NotificationLevel::CRITICAL:
             urgency = "critical";
             icon = "dialog-error";
+            break;
+        default:
+            urgency = "low";
+            icon = "dialog-information";
             break;
     }
     
@@ -264,8 +269,13 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
 
         // --- 2. EVALUATION & ALERTING ---
         
-        // Trigger alert if Load is high, DB is down, or Disk is > 90% full
-        if(current_load > load_threshold || !db_up || ds.percent_used > 90.0) {
+        // Check individual conditions
+        bool load_critical = (current_load > load_threshold);
+        bool disk_critical = (ds.percent_used > 90.0);
+        bool db_critical = !db_up;
+        
+        // Trigger alert if any metric exceeds thresholds
+        if(load_critical || disk_critical || db_critical) {
             std::string alert = "CRITICAL: Load=" + std::to_string(current_load) + 
                                 " | Disk=" + std::to_string(ds.percent_used) + "%" +
                                 " | DB=" + (db_up ? "UP" : "DOWN");
@@ -274,19 +284,62 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
             log_alert(alert);
             std::cout << "[Monitor] Alert triggered and logged.\n";
             
-            // Determine notification severity
+            // Determine notification severity and message
             NotificationLevel level = NotificationLevel::WARNING;
-            if(current_load > load_threshold * 1.5 || ds.percent_used > 95.0) {
+            std::string notification_title = "DeepGuard Warning";
+            std::string notification_message;
+            
+            // Build specific notification message based on what triggered
+            if(load_critical && current_load > load_threshold * 1.2) {
                 level = NotificationLevel::CRITICAL;
+                notification_title = "DeepGuard CRITICAL";
+                
+                #ifdef _WIN32
+                    notification_message = "CRITICAL: RAM Usage at " + 
+                                         std::to_string((int)current_load) + "%!\n" +
+                                         "Threshold: " + std::to_string((int)load_threshold) + "%";
+                #else
+                    notification_message = "CRITICAL: CPU Load at " + 
+                                         std::to_string(current_load) + "\n" +
+                                         "Threshold: " + std::to_string(load_threshold);
+                #endif
+            } 
+            else if(load_critical) {
+                level = NotificationLevel::WARNING;
+                
+                #ifdef _WIN32
+                    notification_message = "WARNING: RAM Usage at " + 
+                                         std::to_string((int)current_load) + "%\n" +
+                                         "Threshold: " + std::to_string((int)load_threshold) + "%";
+                #else
+                    notification_message = "WARNING: CPU Load at " + 
+                                         std::to_string(current_load) + "\n" +
+                                         "Threshold: " + std::to_string(load_threshold);
+                #endif
+            }
+            else if(disk_critical) {
+                if(ds.percent_used > 95.0) {
+                    level = NotificationLevel::CRITICAL;
+                    notification_title = "DeepGuard CRITICAL";
+                }
+                notification_message = "Disk Usage: " + 
+                                     std::to_string((int)ds.percent_used) + "% Full\n"
+                                     "Warning: Low disk space!";
+            }
+            else if(db_critical) {
+                level = NotificationLevel::WARNING;
+                notification_message = "Database Connection Failed\n"
+                                     "MySQL on 127.0.0.1:3306 is unreachable";
             }
             
             // Send system notification
-            send_system_notification("DeepGuard Alert", alert, level);
+            send_system_notification(notification_title, notification_message, level);
             
         } else {
             // Heartbeat output for console monitoring
             std::cout << "[Monitor] System OK. Load: " << current_load 
-                      << " | Disk: " << ds.percent_used << "% | DB: UP\n";
+                      << " | Disk: " << ds.percent_used << "% | DB: " 
+                      << (db_up ? "UP" : "DOWN") << "\n";
         }
 
         // --- 3. COOL DOWN ---
