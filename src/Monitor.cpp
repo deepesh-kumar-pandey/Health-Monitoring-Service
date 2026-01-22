@@ -12,6 +12,7 @@
 #ifdef _WIN32
     #include <windows.h>   // For Memory and Disk APIs
     #include <winsock2.h>  // For Network Sockets
+    #include <winuser.h>   // For MessageBox notifications
     #pragma comment(lib, "ws2_32.lib") // Links the Winsock library on Windows
 #else
     #include <unistd.h>      // Standard symbolic constants and types
@@ -19,6 +20,7 @@
     #include <sys/socket.h>  // For Linux network sockets
     #include <netinet/in.h>  // For IP address structures
     #include <arpa/inet.h>   // For IP address conversion
+    #include <cstdlib>       // For system() command
 #endif
 
 /**
@@ -157,9 +159,92 @@ void Monitor::log_alert(const std::string& message) {
 }
 
 /**
+ * @brief Sends a native system notification.
+ * 
+ * Windows: Uses MessageBox for notifications (runs in separate thread to avoid blocking)
+ * Linux: Uses notify-send command (requires libnotify-bin package)
+ * 
+ * @param title: Notification title
+ * @param message: Notification message
+ * @param level: Severity level (affects icon/color)
+ * @return true if notification sent successfully
+ */
+bool Monitor::send_system_notification(
+    const std::string& title, 
+    const std::string& message,
+    NotificationLevel level
+) {
+#ifdef _WIN32
+    // Windows implementation using MessageBox
+    
+    UINT icon_type;
+    switch(level) {
+        case NotificationLevel::INFO:
+            icon_type = MB_ICONINFORMATION;
+            break;
+        case NotificationLevel::WARNING:
+            icon_type = MB_ICONWARNING;
+            break;
+        case NotificationLevel::CRITICAL:
+            icon_type = MB_ICONERROR;
+            break;
+        default:
+            icon_type = MB_ICONINFORMATION;
+    }
+    
+    // Create a separate thread so notification doesn't block monitoring
+    std::thread([title, message, icon_type]() {
+        MessageBoxA(
+            NULL,
+            message.c_str(),
+            title.c_str(),
+            icon_type | MB_OK | MB_TOPMOST | MB_SETFOREGROUND
+        );
+    }).detach();
+    
+    return true;
+    
+#else
+    // Linux implementation using notify-send
+    // Requires: sudo apt-get install libnotify-bin
+    
+    std::string urgency;
+    std::string icon;
+    
+    switch(level) {
+        case NotificationLevel::INFO:
+            urgency = "low";
+            icon = "dialog-information";
+            break;
+        case NotificationLevel::WARNING:
+            urgency = "normal";
+            icon = "dialog-warning";
+            break;
+        case NotificationLevel::CRITICAL:
+            urgency = "critical";
+            icon = "dialog-error";
+            break;
+    }
+    
+    // Build notify-send command
+    std::string command = "notify-send ";
+    command += "-u " + urgency + " ";
+    command += "-i " + icon + " ";
+    command += "\"" + title + "\" ";
+    command += "\"" + message + "\" ";
+    command += "2>/dev/null &";  // Run in background, suppress errors
+    
+    // Execute command
+    int result = system(command.c_str());
+    
+    return (result == 0);
+#endif
+}
+
+/**
  * @brief The main execution loop for the DeepGuard agent.
  * * Periodically evaluates system load, disk space, and database status.
- * If any metric exceeds thresholds, it triggers a secure log event.
+ * If any metric exceeds thresholds, it triggers a secure log event and system notification.
  * * @param interval_seconds: Frequency of checks.
  */
 void Monitor::run_monitoring_cycle(int interval_seconds) {
@@ -185,8 +270,19 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
                                 " | Disk=" + std::to_string(ds.percent_used) + "%" +
                                 " | DB=" + (db_up ? "UP" : "DOWN");
             
+            // Log the alert (encrypted)
             log_alert(alert);
             std::cout << "[Monitor] Alert triggered and logged.\n";
+            
+            // Determine notification severity
+            NotificationLevel level = NotificationLevel::WARNING;
+            if(current_load > load_threshold * 1.5 || ds.percent_used > 95.0) {
+                level = NotificationLevel::CRITICAL;
+            }
+            
+            // Send system notification
+            send_system_notification("DeepGuard Alert", alert, level);
+            
         } else {
             // Heartbeat output for console monitoring
             std::cout << "[Monitor] System OK. Load: " << current_load 

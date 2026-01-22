@@ -21,6 +21,15 @@ struct DiskStatus {
 };
 
 /**
+ * Notification severity levels
+ */
+enum class NotificationLevel {
+    INFO,       // Informational messages
+    WARNING,    // Warning messages (yellow)
+    CRITICAL    // Critical alerts (red)
+};
+
+/**
  * Monitor Class
  * Responsibilities:
  * 1. Tracking system CPU load (Universal).
@@ -28,6 +37,7 @@ struct DiskStatus {
  * 3. Thread-safe logging of alerts to a file.
  * 4. Checking Database connectivity.
  * 5. Monitoring Disk Space availability.
+ * 6. Sending system notifications.
  */
 class Monitor {
 private:
@@ -83,6 +93,19 @@ public:
     float get_current_load() { 
         return read_system_load(); 
     }
+
+    /**
+     * Sends a native system notification/toast.
+     * @param title: The notification title
+     * @param message: The notification body
+     * @param level: Severity level (INFO, WARNING, CRITICAL)
+     * @return true if notification sent successfully
+     */
+    bool send_system_notification(
+        const std::string& title, 
+        const std::string& message,
+        NotificationLevel level = NotificationLevel::INFO
+    );
 };
 
 #endif
