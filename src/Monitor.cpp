@@ -23,6 +23,14 @@
     #include <cstdlib>       // For system() command
 #endif
 
+#include <vector>
+#include <iomanip>
+#include <sstream>
+#include <openssl/evp.h>
+#include <openssl/sha.h>
+#include <openssl/rand.h>
+
+
 /**
  * @brief Reads the current system workload.
  * * Windows: Retrieves the percentage of physical memory currently in use.
@@ -154,19 +162,41 @@ bool Monitor::check_database_health(const std::string& ip, int port) {
     return (res == 0); // Success if result is 0
 }
 
-/**
- * @brief XOR Cipher for basic data obfuscation.
- * * Uses a symmetric key to scramble/unscramble data. 
- * Running this twice with the same key restores the original string.
- */
-std::string Monitor::encrypt_decrypt(const std::string& data) {
-    std::string result = data;
-    for(size_t i = 0; i < data.size(); ++i) {
-        // Modulo ensures we loop through the key if data is longer than the key
-        result[i] = data[i] ^ key[i % key.size()];
-    }
+static std::vector<unsigned char> derive_aes_key(const std::string& secret) {
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256((const unsigned char*)secret.c_str(), secret.length(), hash);
+    return std::vector<unsigned char>(hash, hash + SHA256_DIGEST_LENGTH);
+}
+
+static std::string aes_256_encrypt(const std::string& plaintext, const std::string& secret) {
+    auto key = derive_aes_key(secret);
+    unsigned char iv[16];
+    if (RAND_bytes(iv, sizeof(iv)) != 1) return "";
+
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key.data(), iv);
+
+    std::vector<unsigned char> ciphertext(plaintext.length() + EVP_MAX_BLOCK_LENGTH);
+    int len, ciphertext_len;
+    EVP_EncryptUpdate(ctx, ciphertext.data(), &len, (const unsigned char*)plaintext.c_str(), plaintext.length());
+    ciphertext_len = len;
+    EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len);
+    ciphertext_len += len;
+    EVP_CIPHER_CTX_free(ctx);
+
+    std::string result((char*)iv, 16);
+    result.append((char*)ciphertext.data(), ciphertext_len);
     return result;
 }
+
+static std::string to_hex(const std::string& input) {
+    std::ostringstream oss;
+    for (unsigned char c : input) {
+        oss << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(c);
+    }
+    return oss.str();
+}
+
 
 /**
  * @brief Logs encrypted messages to a file in a thread-safe manner.
@@ -178,14 +208,17 @@ void Monitor::log_alert(const std::string& message) {
     // RAII lock: Automatically unlocks when 'lock' goes out of scope
     std::lock_guard<std::mutex> lock(mtx); 
     
-    std::string encrypted = encrypt_decrypt(message);
+    std::string encrypted = aes_256_encrypt(message, key);
+    std::string hex_encrypted = to_hex(encrypted);
+
     
     // Open in append and binary mode to prevent OS-specific line-ending corruption
     std::ofstream log_file(log_filename, std::ios::app | std::ios::binary);
 
     if(!log_file.is_open()) return;
     
-    log_file << encrypted << "\n";
+    log_file << hex_encrypted << "\n";
+
     log_file.close();
 }
 

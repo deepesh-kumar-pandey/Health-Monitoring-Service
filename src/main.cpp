@@ -114,7 +114,7 @@ int main() {
     std::cout << "  Check Interval:   " << interval << " seconds\n";
     std::cout << "  Disk Alert:       > 90% usage\n";
     std::cout << "  Monitoring:       [System Load] [Disk Space] [Database]\n";
-    std::cout << "  Security:         XOR-ENCRYPTION ENABLED\n";
+    std::cout << "  Security:         AES-256-CBC ENABLED\n";
     std::cout << "========================================\n";
     std::cout << "  Status: MONITORING ACTIVE\n";
     std::cout << "  Press Ctrl+C to stop\n";
