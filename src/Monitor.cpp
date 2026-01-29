@@ -52,6 +52,37 @@ float Monitor::read_system_load() {
 }
 
 /**
+ * @brief Reads the current RAM usage percentage.
+ * * Windows: Already covered by read_system_load().
+ * Linux: Parses /proc/meminfo to calculate used memory %.
+ */
+float Monitor::read_ram_usage() {
+#ifdef _WIN32
+    return read_system_load();
+#else
+    std::ifstream file("/proc/meminfo");
+    if (!file.is_open()) return -1.0f;
+
+    std::string line;
+    unsigned long long total_mem = 0, free_mem = 0, buffers = 0, cached = 0;
+    
+    while (std::getline(file, line)) {
+        if (line.find("MemTotal:") == 0) sscanf(line.c_str(), "MemTotal: %llu", &total_mem);
+        else if (line.find("MemFree:") == 0) sscanf(line.c_str(), "MemFree: %llu", &free_mem);
+        else if (line.find("Buffers:") == 0) sscanf(line.c_str(), "Buffers: %llu", &buffers);
+        else if (line.find("Cached:") == 0) sscanf(line.c_str(), "Cached: %llu", &cached);
+    }
+    file.close();
+
+    if (total_mem == 0) return -1.0f;
+
+    // Standard formula: Used = Total - Free - Buffers - Cached
+    unsigned long long used_mem = total_mem - (free_mem + buffers + cached);
+    return (static_cast<float>(used_mem) / total_mem) * 100.0f;
+#endif
+}
+
+/**
  * @brief Checks disk capacity and calculates usage percentage.
  * * @param path: The directory or drive to check (e.g., "C:\\" or "/").
  * @return DiskStatus: A struct containing free bytes, total bytes, and percent used.
@@ -257,6 +288,7 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
         // --- 1. SENSOR READINGS ---
         
         float current_load = read_system_load();
+        float current_ram = read_ram_usage();
         
         #ifdef _WIN32
             DiskStatus ds = check_disk_health("C:\\");
@@ -270,13 +302,20 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
         // --- 2. EVALUATION & ALERTING ---
         
         // Check individual conditions
-        bool load_critical = (current_load > load_threshold);
+        #ifdef _WIN32
+            bool load_critical = (current_load > load_threshold); // On Windows load_threshold is RAM
+            bool ram_critical = (current_load > ram_threshold);
+        #else
+            bool load_critical = (current_load > load_threshold);
+            bool ram_critical = (current_ram > ram_threshold);
+        #endif
         bool disk_critical = (ds.percent_used > 90.0);
         bool db_critical = !db_up;
         
         // Trigger alert if any metric exceeds thresholds
-        if(load_critical || disk_critical || db_critical) {
+        if(load_critical || ram_critical || disk_critical || db_critical) {
             std::string alert = "CRITICAL: Load=" + std::to_string(current_load) + 
+                                " | RAM=" + std::to_string(current_ram) + "%" +
                                 " | Disk=" + std::to_string(ds.percent_used) + "%" +
                                 " | DB=" + (db_up ? "UP" : "DOWN");
             
@@ -293,29 +332,24 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
             if(load_critical && current_load > load_threshold * 1.2) {
                 level = NotificationLevel::CRITICAL;
                 notification_title = "DeepGuard CRITICAL";
-                
-                #ifdef _WIN32
-                    notification_message = "CRITICAL: RAM Usage at " + 
-                                         std::to_string((int)current_load) + "%!\n" +
-                                         "Threshold: " + std::to_string((int)load_threshold) + "%";
-                #else
-                    notification_message = "CRITICAL: CPU Load at " + 
-                                         std::to_string(current_load) + "\n" +
-                                         "Threshold: " + std::to_string(load_threshold);
-                #endif
+                notification_message = "CRITICAL: CPU Load at " + std::to_string(current_load) + "\n" +
+                                     "Threshold: " + std::to_string(load_threshold);
             } 
+            else if(ram_critical && current_ram > ram_threshold * 1.2) {
+                level = NotificationLevel::CRITICAL;
+                notification_title = "DeepGuard CRITICAL";
+                notification_message = "CRITICAL: RAM Usage at " + std::to_string((int)current_ram) + "%!\n" +
+                                     "Threshold: " + std::to_string((int)ram_threshold) + "%";
+            }
             else if(load_critical) {
                 level = NotificationLevel::WARNING;
-                
-                #ifdef _WIN32
-                    notification_message = "WARNING: RAM Usage at " + 
-                                         std::to_string((int)current_load) + "%\n" +
-                                         "Threshold: " + std::to_string((int)load_threshold) + "%";
-                #else
-                    notification_message = "WARNING: CPU Load at " + 
-                                         std::to_string(current_load) + "\n" +
-                                         "Threshold: " + std::to_string(load_threshold);
-                #endif
+                notification_message = "WARNING: CPU Load at " + std::to_string(current_load) + "\n" +
+                                     "Threshold: " + std::to_string(load_threshold);
+            }
+            else if(ram_critical) {
+                level = NotificationLevel::WARNING;
+                notification_message = "WARNING: RAM Usage at " + std::to_string((int)current_ram) + "%\n" +
+                                     "Threshold: " + std::to_string((int)ram_threshold) + "%";
             }
             else if(disk_critical) {
                 if(ds.percent_used > 95.0) {
@@ -338,6 +372,7 @@ void Monitor::run_monitoring_cycle(int interval_seconds) {
         } else {
             // Heartbeat output for console monitoring
             std::cout << "[Monitor] System OK. Load: " << current_load 
+                      << " | RAM: " << current_ram << "%"
                       << " | Disk: " << ds.percent_used << "% | DB: " 
                       << (db_up ? "UP" : "DOWN") << "\n";
         }

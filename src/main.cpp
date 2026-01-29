@@ -20,6 +20,7 @@ int main() {
     }
     
     float threshold;
+    float ram_threshold;
     std::string log_file;
     int interval;
 
@@ -42,6 +43,14 @@ int main() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 
+    // New RAM Threshold Input
+    std::cout << "[1.5/3] Enter RAM Usage % Threshold (e.g. 80.0 for 80%): ";
+    while (!(std::cin >> ram_threshold) || ram_threshold < 0 || ram_threshold > 100) {
+        std::cout << "Invalid input. Please enter a number between 0 and 100: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
     // 3. Interactive Input: Log Filename
     std::cout << "[2/3] Enter name for the log file (e.g., alerts.log): ";
     std::cin >> log_file;
@@ -55,23 +64,27 @@ int main() {
     }
 
     // 5. Create Monitor instance
-    Monitor sys_monitor(threshold, log_file, secret_key);
+    Monitor sys_monitor(threshold, ram_threshold, log_file, secret_key);
 
     // 6. Display current system statistics before starting monitoring
     std::cout << "\n========================================\n";
     std::cout << "  CURRENT SYSTEM STATISTICS\n";
     std::cout << "========================================\n";
 
-    // Get current system load
+    // Get current system load and RAM
     float current_load = sys_monitor.get_current_load();
+    float current_ram = sys_monitor.get_current_ram();
+
     if (current_load >= 0) {
-#ifdef _WIN32
-        std::cout << "  Current RAM Usage: " << current_load << "%\n";
-#else
         std::cout << "  Current CPU Load:  " << current_load << "\n";
-#endif
     } else {
         std::cout << "  Current Load:      Unable to read\n";
+    }
+
+    if (current_ram >= 0) {
+        std::cout << "  Current RAM Usage: " << current_ram << "%\n";
+    } else {
+        std::cout << "  Current RAM:       Unable to read\n";
     }
 
     // Get current disk status
@@ -96,12 +109,8 @@ int main() {
     std::cout << "  MONITORING CONFIGURATION\n";
     std::cout << "========================================\n";
     std::cout << "  Target Log:       " << log_file << "\n";
-    std::cout << "  Alert Threshold:  " << threshold;
-#ifdef _WIN32
-    std::cout << " % (RAM)\n";
-#else
-    std::cout << " (CPU Load)\n";
-#endif
+    std::cout << "  CPU Threshold:    " << threshold << "\n";
+    std::cout << "  RAM Threshold:    " << ram_threshold << " %\n";
     std::cout << "  Check Interval:   " << interval << " seconds\n";
     std::cout << "  Disk Alert:       > 90% usage\n";
     std::cout << "  Monitoring:       [System Load] [Disk Space] [Database]\n";
