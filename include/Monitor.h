@@ -54,11 +54,6 @@ private:
     std::mutex mtx;              // Prevents multiple threads from writing to the log file 
                                  // simultaneously (avoids data corruption)
 
-    // --- Internal Helpers ---
-    
-    // Applies the XOR cipher to the input string using the private 'key'
-    std::string encrypt_decrypt(const std::string& data);
-
     // Reads and parses system load (Windows: RAM% | Linux: /proc/loadavg)
     float read_system_load();
 
